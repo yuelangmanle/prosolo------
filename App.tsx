@@ -363,57 +363,57 @@ export default function App() {
     <div className="min-h-screen bg-slate-50 text-slate-900 pb-20">
       {/* Header */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="bg-blue-600 p-2 rounded-lg">
-              <Droplets className="w-5 h-5 text-white" />
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="bg-blue-600 p-1.5 sm:p-2 rounded-lg">
+              <Droplets className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
             </div>
-            <h1 className="text-xl font-bold text-slate-800">ProSolo 数据提取器</h1>
+            <h1 className="text-base sm:text-xl font-bold text-slate-800">ProSolo 数据提取器</h1>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
              {hasItems && (
               <>
                 <button
                   onClick={handleSortByTime}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors font-medium"
+                  className="flex items-center gap-1 px-2 py-1 sm:gap-1.5 sm:px-3 sm:py-1.5 text-xs sm:text-sm text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors font-medium hidden md:inline-flex"
                   title="根据拍摄时间自动排序"
                 >
-                  <ArrowDownWideNarrow className="w-4 h-4" />
-                  按时间排序
+                  <ArrowDownWideNarrow className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">按时间排序</span>
                 </button>
-                <div className="h-6 w-px bg-slate-200 mx-1"></div>
+                <div className="h-4 w-px bg-slate-200 mx-0.5 md:inline-block hidden"></div>
                 <button
                   onClick={() => setIsSamplePointModalOpen(true)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-md transition-colors font-medium"
+                  className="flex items-center gap-1 px-2 py-1 sm:gap-1.5 sm:px-3 sm:py-1.5 text-xs sm:text-sm text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-md transition-colors font-medium"
                   title="采样点配置"
                 >
-                  <FileText className="w-4 h-4" />
-                  采样点配置
+                  <FileText className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">采样点配置</span>
                 </button>
-                <div className="h-6 w-px bg-slate-200 mx-1"></div>
+                <div className="h-4 w-px bg-slate-200 mx-0.5 sm:mx-1 md:inline-block hidden"></div>
                 <button
                   onClick={handleClearAll}
-                  className="p-2 text-slate-500 hover:text-red-600 hover:bg-slate-100 rounded-md transition-colors"
+                  className="p-1.5 sm:p-2 text-slate-500 hover:text-red-600 hover:bg-slate-100 rounded-md transition-colors"
                   title="清空所有"
                 >
-                  <Trash2 className="w-5 h-5" />
+                  <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
-                <div className="h-6 w-px bg-slate-200 mx-1"></div>
+                <div className="h-4 w-px bg-slate-200 mx-0.5 sm:mx-1 md:inline-block hidden"></div>
               </>
             )}
             {/* API配置按钮 */}
             <button
               onClick={() => setIsApiConfigModalOpen(true)}
-              className="p-2 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded-md transition-colors"
+              className="p-1.5 sm:p-2 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded-md transition-colors"
               title="API配置"
             >
-              <Settings className="w-5 h-5" />
+              <Settings className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </div>
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <main className="max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8 w-full">
         
         {/* Upload Section */}
         <section>
@@ -435,18 +435,18 @@ export default function App() {
         {/* Results Section */}
         {hasItems && (
           <section className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <h2 className="text-lg font-semibold text-slate-800">
                 已处理数据 ({images.length} 个样本)
               </h2>
-              <div className="flex gap-3">
+              <div className="flex gap-2 sm:gap-3">
                 {/* Process Button */}
                 {hasUnprocessed && (
                   <button
                     onClick={processImages}
                     disabled={isProcessing}
                     className={`
-                      flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-white shadow-sm transition-all
+                      flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-medium text-white shadow-sm transition-all
                       ${isProcessing 
                         ? 'bg-blue-400 cursor-wait' 
                         : 'bg-blue-600 hover:bg-blue-700 hover:shadow-md active:transform active:scale-95'
@@ -458,7 +458,7 @@ export default function App() {
                     ) : (
                       <>
                         <Play className="w-4 h-4 fill-current" />
-                        开始提取
+                        <span className="hidden sm:inline">开始提取</span>
                       </>
                     )}
                   </button>
@@ -468,10 +468,10 @@ export default function App() {
                 <button
                   onClick={exportExcel}
                   disabled={isProcessing}
-                  className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium shadow-sm hover:bg-emerald-700 hover:shadow-md transition-all active:transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 bg-emerald-600 text-white rounded-lg font-medium shadow-sm hover:bg-emerald-700 hover:shadow-md transition-all active:transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <FileDown className="w-4 h-4" />
-                  导出 Excel
+                  <span className="hidden sm:inline">导出 Excel</span>
                 </button>
               </div>
             </div>

@@ -199,10 +199,52 @@ export const ApiConfigModal: React.FC<ApiConfigModalProps> = ({ isOpen, onClose,
     const link = document.createElement('a');
     link.href = URL.createObjectURL(dataBlob);
     link.download = `prosolo-api-config-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
   };
 
-  // 导入配置
+  // 导入配置 - 文件选择处理
+  const handleImportConfigFile = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const content = e.target?.result as string;
+        const importedCollection: ApiConfigCollection = JSON.parse(content);
+        
+        // 验证导入的数据结构
+        if (!importedCollection.configs || !Array.isArray(importedCollection.configs)) {
+          throw new Error('无效的配置文件格式');
+        }
+        
+        // 验证每个配置项
+        for (const config of importedCollection.configs) {
+          if (!config.id || !config.name) {
+            throw new Error('配置文件包含无效的配置项');
+          }
+        }
+        
+        // 更新配置
+        setConfigs(importedCollection.configs);
+        setCurrentConfigId(importedCollection.currentConfigId);
+        
+        // 设置当前配置
+        const current = importedCollection.configs.find(c => c.id === importedCollection.currentConfigId) || importedCollection.configs[0];
+        if (current) {
+          setConfig(current);
+        }
+        
+        alert('配置导入成功！');
+      } catch (error) {
+        console.error('导入配置失败:', error);
+        alert('配置导入失败：' + (error instanceof Error ? error.message : '未知错误'));
+      }
+    };
+    
+    reader.readAsText(file);
+  };
+
+  // 导入配置 - 触发文件选择
   const handleImportConfig = () => {
     const input = document.createElement('input');
     input.type = 'file';
@@ -212,35 +254,7 @@ export const ApiConfigModal: React.FC<ApiConfigModalProps> = ({ isOpen, onClose,
       const file = (event.target as HTMLInputElement).files?.[0];
       if (!file) return;
       
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const content = e.target?.result as string;
-          const importedCollection: ApiConfigCollection = JSON.parse(content);
-          
-          // 验证导入的数据结构
-          if (!importedCollection.configs || !Array.isArray(importedCollection.configs)) {
-            throw new Error('无效的配置文件格式');
-          }
-          
-          // 更新配置
-          setConfigs(importedCollection.configs);
-          setCurrentConfigId(importedCollection.currentConfigId);
-          
-          // 设置当前配置
-          const current = importedCollection.configs.find(c => c.id === importedCollection.currentConfigId) || importedCollection.configs[0];
-          if (current) {
-            setConfig(current);
-          }
-          
-          alert('配置导入成功！');
-        } catch (error) {
-          console.error('导入配置失败:', error);
-          alert('配置导入失败：' + (error instanceof Error ? error.message : '未知错误'));
-        }
-      };
-      
-      reader.readAsText(file);
+      handleImportConfigFile(file);
     };
     
     input.click();
@@ -395,54 +409,62 @@ export const ApiConfigModal: React.FC<ApiConfigModalProps> = ({ isOpen, onClose,
         onClick={(e) => e.stopPropagation()}
       >
         {/* 头部 */}
-        <div className="border-b border-slate-200 px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <h2 className="text-xl font-bold text-slate-800">API配置</h2>
-            <div className="flex items-center gap-2">
-              <select 
-                value={config.id}
-                onChange={(e) => handleSwitchConfig(e.target.value)}
-                className="px-3 py-1 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              >
-                {configs.map(cfg => (
-                  <option key={cfg.id} value={cfg.id}>{cfg.name}</option>
-                ))}
-              </select>
+        <div className="border-b border-slate-200 px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center justify-between w-full sm:w-auto">
+            <h2 className="text-lg sm:text-xl font-bold text-slate-800">API配置</h2>
+            <button 
+              onClick={onClose}
+              className="sm:hidden text-slate-500 hover:text-slate-700 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <select 
+              value={config.id}
+              onChange={(e) => handleSwitchConfig(e.target.value)}
+              className="flex-1 px-3 py-1 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-w-0"
+            >
+              {configs.map(cfg => (
+                <option key={cfg.id} value={cfg.id}>{cfg.name}</option>
+              ))}
+            </select>
+            <div className="flex items-center gap-1">
               <button 
                 onClick={handleAddNewConfig}
-                className="p-1 text-slate-500 hover:text-blue-600 transition-colors"
+                className="p-1.5 text-slate-500 hover:text-blue-600 transition-colors"
                 title="添加新配置"
               >
-                <Plus className="w-5 h-5" />
+                <Plus className="w-4 h-4" />
               </button>
               <button 
                 onClick={handleCopyConfig}
-                className="p-1 text-slate-500 hover:text-blue-600 transition-colors"
+                className="p-1.5 text-slate-500 hover:text-blue-600 transition-colors"
                 title="复制当前配置"
               >
-                <Copy className="w-5 h-5" />
+                <Copy className="w-4 h-4" />
               </button>
               {configs.length > 1 && (
                 <button 
                   onClick={() => handleDeleteConfig(config.id)}
-                  className="p-1 text-slate-500 hover:text-red-600 transition-colors"
+                  className="p-1.5 text-slate-500 hover:text-red-600 transition-colors"
                   title="删除当前配置"
                 >
-                  <Trash2 className="w-5 h-5" />
+                  <Trash2 className="w-4 h-4" />
                 </button>
               )}
             </div>
           </div>
           <button 
             onClick={onClose}
-            className="text-slate-500 hover:text-slate-700 transition-colors"
+            className="hidden sm:block text-slate-500 hover:text-slate-700 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* 内容 */}
-        <div className="p-6 space-y-6">
+        <div className="p-4 sm:p-6 space-y-6">
           {/* 配置名称 */}
           <div className="space-y-2">
             <label className="block text-sm font-medium text-slate-700">配置名称</label>
@@ -458,8 +480,8 @@ export const ApiConfigModal: React.FC<ApiConfigModalProps> = ({ isOpen, onClose,
           {/* API选择 */}
           <div className="space-y-2">
             <label className="block text-sm font-medium text-slate-700">API服务选择</label>
-            <div className="flex flex-wrap gap-3">
-              <label className="inline-flex items-center gap-2 bg-slate-50 px-4 py-3 rounded-lg cursor-pointer hover:bg-slate-100 transition-colors border-2 border-transparent">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <label className="inline-flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-100 transition-colors border-2 border-transparent">
                 <input
                   type="radio"
                   name="selectedApi"
@@ -468,9 +490,9 @@ export const ApiConfigModal: React.FC<ApiConfigModalProps> = ({ isOpen, onClose,
                   onChange={(e) => setConfig(prev => ({ ...prev, selectedApi: e.target.value as 'auto' }))}
                   className="text-blue-600"
                 />
-                <span>自动选择</span>
+                <span className="text-sm">自动选择</span>
               </label>
-              <label className="inline-flex items-center gap-2 bg-slate-50 px-4 py-3 rounded-lg cursor-pointer hover:bg-slate-100 transition-colors border-2 border-transparent">
+              <label className="inline-flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-100 transition-colors border-2 border-transparent">
                 <input
                   type="radio"
                   name="selectedApi"
@@ -479,9 +501,9 @@ export const ApiConfigModal: React.FC<ApiConfigModalProps> = ({ isOpen, onClose,
                   onChange={(e) => setConfig(prev => ({ ...prev, selectedApi: e.target.value as 'openai' }))}
                   className="text-blue-600"
                 />
-                <span>OpenAI</span>
+                <span className="text-sm">OpenAI</span>
               </label>
-              <label className="inline-flex items-center gap-2 bg-slate-50 px-4 py-3 rounded-lg cursor-pointer hover:bg-slate-100 transition-colors border-2 border-transparent">
+              <label className="inline-flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-100 transition-colors border-2 border-transparent">
                 <input
                   type="radio"
                   name="selectedApi"
@@ -490,7 +512,7 @@ export const ApiConfigModal: React.FC<ApiConfigModalProps> = ({ isOpen, onClose,
                   onChange={(e) => setConfig(prev => ({ ...prev, selectedApi: e.target.value as 'gemini' }))}
                   className="text-blue-600"
                 />
-                <span>Gemini</span>
+                <span className="text-sm">Gemini</span>
               </label>
             </div>
             <p className="text-xs text-slate-500">
@@ -499,8 +521,8 @@ export const ApiConfigModal: React.FC<ApiConfigModalProps> = ({ isOpen, onClose,
           </div>
 
           {/* OpenAI配置 */}
-          <div className="space-y-4 bg-slate-50 p-4 rounded-lg">
-            <h3 className="font-semibold text-slate-800 border-b pb-2">OpenAI API配置</h3>
+          <div className="space-y-4 bg-slate-50 p-3 sm:p-4 rounded-lg">
+            <h3 className="font-semibold text-slate-800 border-b pb-2 text-sm sm:text-base">OpenAI API配置</h3>
             
             <div className="space-y-2">
               <label className="block text-sm font-medium text-slate-700">API密钥</label>
@@ -509,7 +531,7 @@ export const ApiConfigModal: React.FC<ApiConfigModalProps> = ({ isOpen, onClose,
                 value={config.openaiApiKey}
                 onChange={(e) => setConfig(prev => ({ ...prev, openaiApiKey: e.target.value }))}
                 placeholder="sk-..."
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
               />
             </div>
 
@@ -520,7 +542,7 @@ export const ApiConfigModal: React.FC<ApiConfigModalProps> = ({ isOpen, onClose,
                 value={config.openaiModel}
                 onChange={(e) => setConfig(prev => ({ ...prev, openaiModel: e.target.value }))}
                 placeholder="gpt-4o-mini"
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
               />
             </div>
 
@@ -531,7 +553,7 @@ export const ApiConfigModal: React.FC<ApiConfigModalProps> = ({ isOpen, onClose,
                 value={config.openaiBaseUrl}
                 onChange={(e) => setConfig(prev => ({ ...prev, openaiBaseUrl: e.target.value }))}
                 placeholder="https://api.openai.com/v1"
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
               />
               <p className="text-xs text-slate-500">
                 用于接入第三方兼容OpenAI API的服务（如国内镜像、Azure OpenAI等）
@@ -540,8 +562,8 @@ export const ApiConfigModal: React.FC<ApiConfigModalProps> = ({ isOpen, onClose,
           </div>
 
           {/* Gemini配置 */}
-          <div className="space-y-4 bg-slate-50 p-4 rounded-lg">
-            <h3 className="font-semibold text-slate-800 border-b pb-2">Gemini API配置</h3>
+          <div className="space-y-4 bg-slate-50 p-3 sm:p-4 rounded-lg">
+            <h3 className="font-semibold text-slate-800 border-b pb-2 text-sm sm:text-base">Gemini API配置</h3>
             
             <div className="space-y-2">
               <label className="block text-sm font-medium text-slate-700">API密钥</label>
@@ -550,7 +572,7 @@ export const ApiConfigModal: React.FC<ApiConfigModalProps> = ({ isOpen, onClose,
                 value={config.geminiApiKey}
                 onChange={(e) => setConfig(prev => ({ ...prev, geminiApiKey: e.target.value }))}
                 placeholder="AIzaSy..."
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
               />
             </div>
 
@@ -561,7 +583,7 @@ export const ApiConfigModal: React.FC<ApiConfigModalProps> = ({ isOpen, onClose,
                 value={config.geminiModel}
                 onChange={(e) => setConfig(prev => ({ ...prev, geminiModel: e.target.value }))}
                 placeholder="gemini-1.5-flash"
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
               />
             </div>
           </div>
@@ -579,13 +601,13 @@ export const ApiConfigModal: React.FC<ApiConfigModalProps> = ({ isOpen, onClose,
             <div className="flex items-center gap-2">
               <button 
                 onClick={handleExportConfig}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-700 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors border border-blue-200"
               >
                 <Download className="w-4 h-4" />
                 导出配置
               </button>
               
-              <label className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors cursor-pointer">
+              <label className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-green-700 bg-green-50 rounded-lg hover:bg-green-100 transition-colors border border-green-200 cursor-pointer">
                 <Upload className="w-4 h-4" />
                 <span>导入配置</span>
                 <input

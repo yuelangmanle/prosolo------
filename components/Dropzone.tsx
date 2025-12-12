@@ -40,7 +40,7 @@ export const Dropzone: React.FC<DropzoneProps> = ({ onFilesAdded, disabled }) =>
       onDrop={handleDrop}
       onDragOver={(e) => e.preventDefault()}
       className={`
-        relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-200
+        relative border-2 border-dashed rounded-xl p-6 text-center transition-all duration-200
         flex flex-col items-center justify-center gap-4 group cursor-pointer
         ${disabled 
           ? 'border-slate-200 bg-slate-50 cursor-not-allowed opacity-60' 
@@ -48,15 +48,15 @@ export const Dropzone: React.FC<DropzoneProps> = ({ onFilesAdded, disabled }) =>
         }
       `}
     >
-      <div className={`p-4 rounded-full ${disabled ? 'bg-slate-100' : 'bg-white shadow-sm'}`}>
+      <div className={`p-3 rounded-full ${disabled ? 'bg-slate-100' : 'bg-white shadow-sm'}`}>
         <Upload className={`w-8 h-8 ${disabled ? 'text-slate-400' : 'text-blue-500'}`} />
       </div>
       
       <div className="space-y-1">
-        <p className="text-lg font-medium text-slate-700">
+        <p className="text-base sm:text-lg font-medium text-slate-700">
           将 ProSolo 图片拖放到此处
         </p>
-        <p className="text-sm text-slate-500">
+        <p className="text-xs sm:text-sm text-slate-500">
           或点击选择文件（支持批量上传）
         </p>
       </div>
