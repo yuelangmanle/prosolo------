@@ -2,6 +2,14 @@
 
 我们已经为您的Prosolo数据提取器项目配置了两个自动化部署工作流，分别用于GitHub Pages和Gitee Pages。
 
+## 本地开发一键启动
+
+为了方便您的本地开发，我们还提供了一键启动脚本：
+- **批处理文件**: `start-dev.bat` - 双击即可运行
+- **PowerShell 脚本**: `start-dev.ps1` - 右键选择"使用 PowerShell 运行"
+
+这些脚本会自动检查环境、安装依赖（如果需要）并启动开发服务器。
+
 ## 已完成的工作
 
 ### 1. GitHub Pages 部署工作流
