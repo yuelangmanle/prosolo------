@@ -1,0 +1,5 @@
+{
+  "name": "ProSolo 数据提取器",
+  "description": "AI 智能工具，用于从 ProSolo 设备屏幕照片中提取水质数据（温度、mmHg、DO%、DO mg/L）并导出为 Excel。",
+  "requestFramePermissions": []
+}
